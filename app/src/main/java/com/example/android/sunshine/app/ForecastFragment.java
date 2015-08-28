@@ -153,7 +153,6 @@ public class ForecastFragment extends Fragment {
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
-                urlConnection.
                 urlConnection.connect();
 
                 // Read the input stream into a String
