@@ -29,8 +29,13 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
+    private final String LOG = this.getClass().getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.d(LOG, "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
@@ -38,6 +43,40 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        Log.d(LOG, "onPause");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d(LOG, "onResume");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(LOG, "onStop");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(LOG, "onStart");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG, "onDestroy");
+
+
     }
 
     @Override
