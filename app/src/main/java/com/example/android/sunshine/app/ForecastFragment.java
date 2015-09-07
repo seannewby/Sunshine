@@ -1,9 +1,11 @@
 package com.example.android.sunshine.app;
 
-import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -50,36 +52,23 @@ public class ForecastFragment extends Fragment {
 
 
 
-        List<String> weekForecast = new ArrayList<String>();
-
-        weekForecast.add("Today - Sunny 88/63");
-        weekForecast.add("Tommorrow - Foggy 70/46");
-        weekForecast.add("Weds - Cloudy - 72/63");
-        weekForecast.add("Thurs - Rainy - 64/51");
-        weekForecast.add("Fri - Foggy - 70/46");
-        weekForecast.add("Sat - Sunny - 76/68");
-
-
-
         forecastAdapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, new ArrayList());
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(forecastAdapter);
 
-        FetchWeatherTask task = new FetchWeatherTask();
-        task.execute("85034");
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                int duration = Toast.LENGTH_SHORT;
+                String forecast = forecastAdapter.getItem(position);
 
-                String text = forecastAdapter.getItem(position);
-
-                Toast toast = Toast.makeText(getActivity(), text, duration);
-                toast.show();
+                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                detailIntent.putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(detailIntent);
             }
         });
 
@@ -95,12 +84,23 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item){
 
         int id = item.getItemId();
+
+
+       // Toast.makeText(getActivity(), "test2 " + id, Toast.LENGTH_LONG).show();
+
         if(id == R.id.action_refresh){
-            FetchWeatherTask task = new FetchWeatherTask();
-            task.execute("85034");
+
+            updateWeather();
+
             return true;
         }
 
@@ -279,6 +279,9 @@ public class ForecastFragment extends Fragment {
             // now we work exclusively in UTC
             dayTime = new Time();
 
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unit = prefs.getString(getString(R.string.pref_unit_key), getString(R.string.pref_unit_default));
+
             String[] resultStrs = new String[numDays];
             for(int i = 0; i < weatherArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
@@ -307,6 +310,13 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
+                if(unit.equals("imperial")){
+
+                    high = high * 9/5 + 32;
+                    low = low * 9/5 + 32;
+
+                }
+
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
@@ -317,6 +327,17 @@ public class ForecastFragment extends Fragment {
             return resultStrs;
 
         }
+    }
+
+    private void updateWeather(){
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String zip = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+        String unit = prefs.getString(getString(R.string.pref_unit_key), getString(R.string.pref_unit_default));
+
+        FetchWeatherTask task = new FetchWeatherTask();
+        task.execute(zip);
+
     }
 
 }
