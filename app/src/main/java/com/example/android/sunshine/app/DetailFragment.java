@@ -68,6 +68,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int COL_WEATHER_PRESSURE = 6;
     private static final int COL_WEATHER_WIND_SPEED = 7;
     private static final int COL_WEATHER_DEGREES = 8;
+    static final int COL_WEATHER_CONDITION_ID = 9;
 
     private ImageView mIconView;
     private TextView mFriendlyDateView;
@@ -161,10 +162,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.v(LOG_TAG, "In onLoadFinished");
-        if (!data.moveToFirst()) { return; }
+        if (!data.moveToFirst()) { return;
+        }
 
         boolean isMetric = Utility.isMetric(getActivity());
-
 
 
         long dateInMillis = data.getLong(DetailFragment.COL_WEATHER_DATE);
@@ -180,7 +181,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mLowTempView.setText(Utility.formatTemperature(getActivity(), low, isMetric));
 
 
-        mIconView.setImageResource(R.drawable.ic_launcher);
+        int conditionId = data.getInt(DetailFragment.COL_WEATHER_CONDITION_ID);
+        int iconId = Utility.getArtResourceForWeatherCondition(conditionId);
+
+        mIconView.setImageResource(iconId);
 
         String description = data.getString(DetailFragment.COL_WEATHER_DESC);
         mDescriptionView.setText(description);
